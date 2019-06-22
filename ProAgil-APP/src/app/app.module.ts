@@ -18,13 +18,19 @@ import { DateTimeFormatPipePipe } from './_helps/DateTimeFormatPipe.pipe';
 // Eventos
 import { EventoService } from './_services/Evento.service';
 import { BsDatepickerModule } from 'ngx-bootstrap';
+import { TituloComponent } from './titulo/titulo.component';
+
+import { CommonModule } from '@angular/common';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
    declarations: [
       AppComponent,
       EventosComponent,
       NavComponent,
-      DateTimeFormatPipePipe
+      DateTimeFormatPipePipe,
+      TituloComponent
    ],
    imports: [
       BrowserModule,
@@ -35,7 +41,8 @@ import { BsDatepickerModule } from 'ngx-bootstrap';
       ModalModule.forRoot(),
       TooltipModule.forRoot(),
       ReactiveFormsModule,
-      BsDatepickerModule.forRoot()
+      BsDatepickerModule.forRoot(),
+      ToastrModule.forRoot()
    ],
    providers: [
       EventoService

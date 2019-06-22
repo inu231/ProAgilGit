@@ -4,6 +4,7 @@ import { Evento } from '../_model/Evento';
 import { BsModalRef, BsModalService, BsDropdownModule  } from 'ngx-bootstrap';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { defineLocale, BsLocaleService, ptBrLocale } from "ngx-bootstrap";
+import { ToastrService } from 'ngx-toastr';
 
 defineLocale('pt-br', ptBrLocale);
 
@@ -13,8 +14,10 @@ defineLocale('pt-br', ptBrLocale);
   styleUrls: ['./eventos.component.css']
 })
 export class EventosComponent implements OnInit {
+
+  titulo = 'Eventos';
   eventosFiltrados: Evento[];
-  eventos: Evento[];
+  eventos: Evento[] = [];
   evento: Evento;
   locais: any = [];
   imagemLargura = 50;
@@ -24,12 +27,14 @@ export class EventosComponent implements OnInit {
   formEvento: FormGroup;
   acao: string;
   _filtroLista: string;
+  file: File;
 
   constructor(
     private eventoService: EventoService,
     private modalService: BsModalService,
     private fb: FormBuilder,
-    private localeService: BsLocaleService
+    private localeService: BsLocaleService,
+    private toastr: ToastrService,
     ) { 
       this.localeService.use('pt-br');
     }
@@ -102,13 +107,20 @@ export class EventosComponent implements OnInit {
 
     salvarAlteracao(modal: any) {
     if(this.formEvento.valid) {
+
+      console.log(this.file);
+
+      this.eventoService.upload(this.file).subscribe();
+
         if(this.acao === 'INSERT') {
           this.evento = Object.assign({}, this.formEvento.value);
+          this.evento.imagemURL = this.evento.imagemURL.split('\\', 3)[2];
           this.eventoService.postEvento(this.evento).subscribe(
             (novoEvento: Evento) => {
               console.log(novoEvento);
               modal.hide();
               this.getEventos();
+              this.toastr.success('Operação realizada com sucesso!', 'Sucesso!');
             },
             error => {
               console.log(error);
@@ -116,11 +128,13 @@ export class EventosComponent implements OnInit {
           );
         } else if (this.acao === 'UPDATE') {
           this.evento = Object.assign({eventoId: this.evento.eventoId}, this.formEvento.value);
+          this.evento.imagemURL = this.evento.imagemURL.split('\\', 3)[2];
           console.log(this.evento);
           this.eventoService.putEvento(this.evento).subscribe(
             () => {
               modal.hide();
               this.getEventos();
+              this.toastr.success('Operação realizada com sucesso!', 'Sucesso!');
             }, 
             error => {
               console.log(error)
@@ -135,9 +149,17 @@ export class EventosComponent implements OnInit {
        this.eventoService.deleteEvento(EventoId).subscribe(
         (response: any ) => {
            this.getEventos();
+           this.toastr.success('Operação realizada com sucesso!', 'Sucesso!');
         }, error => {
             console.log(error);
         }
        );
+    }
+
+    onFileChange(event: any) {
+      const reader = new FileReader();
+      if(event.target.files && event.target.files.length > 0) {
+          this.file = event.target.files; 
+      }
     }
 }

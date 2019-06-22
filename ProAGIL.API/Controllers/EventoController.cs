@@ -4,6 +4,8 @@ using ProAgil.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
+using System.Net.Http.Headers;
 
 namespace ProAGIL.API.Controllers
 {
@@ -40,6 +42,47 @@ namespace ProAGIL.API.Controllers
             {
                 var result = await _repo.GetAEventoAsyncById(EventoId, true); 
                 return Ok(result);
+            }
+            catch (System.Exception)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco de dados Falhou");
+            }
+        }
+
+        [HttpPost("upload")]
+        public async Task<IActionResult> upload()
+        {
+            
+            try
+            {
+                // Recupernado o arquivo enviado
+                var file = Request.Form.Files[0];
+
+                // Combine: Resources/Image
+                var folderName = Path.Combine("Resources", "Image");
+
+                // Este combine: Diretorio atual + /Resources/Image/
+                var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+
+                // Verifica se algum arquivo foi "Upado"
+                if (file.Length > 0)
+                {   
+                    // Pegar o nome do arquivo
+                    var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName;
+                    
+                    // Concatenando o nome completo do diretorio + o nome do arquivo. (retirando os espaços em branco e as aspas do arquivo com o replace abaixo)
+                    var fullPath = Path.Combine(pathToSave, fileName.Replace("\"", " ").Trim());
+
+                    // Criando uma instancia de FileStream para criar o arquivo.
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    {
+                        file.CopyTo(stream);
+                    }
+
+                    // Importante: Checar o método UseStatiCFiles no Startup.cs para checar as configs que foram feitas.
+                }
+
+                return Ok();
             }
             catch (System.Exception)
             {

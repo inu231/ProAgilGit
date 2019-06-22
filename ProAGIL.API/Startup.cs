@@ -14,7 +14,9 @@ using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore; // Sempre adicionar este cara
 using Microsoft.AspNetCore.Cors;
 using ProAgil.Repository;
-
+using Microsoft.Extensions.FileProviders;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace ProAGIL.API
 {
@@ -33,6 +35,8 @@ namespace ProAGIL.API
             services.AddDbContext<ProAgilContext>(x => x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped<IProAgilRepository, ProAgilRepository>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            // Adicionar requisicao cruuzada, resolvendo erro do CORS.
             services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
             {
                 builder.AllowAnyOrigin()
@@ -56,6 +60,17 @@ namespace ProAGIL.API
             //app.UseHttpsRedirection();
             app.UseCors("MyPolicy");
             app.UseStaticFiles();
+
+            // Configurando manualmente o uso dos arquivos
+            app.UseStaticFiles(new StaticFileOptions(){
+
+                // Especificando o diretório no qual salvaremos os arquivos:
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"Resources")),
+
+                // Especificando o diretório no qual RECUPERAREMOS os arquivos.
+                RequestPath = new PathString("/Resources")
+            });
+
             app.UseMvc();
         }
     }

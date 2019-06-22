@@ -36,4 +36,18 @@ export class EventoService {
     return this.http.delete(this.baseURL+'/'+eventoId);
   }
 
+  upload(file: File) {
+
+    // pegando o arquivo enviado
+    const fileToUpload = <File> file[0];
+
+    // criando um FormData() para enviar o arq ao backend
+    const formData = new FormData();
+
+    // colocando o arquivo no formData:
+    formData.append('file', fileToUpload, fileToUpload.name)
+
+    return this.http.post(this.baseURL+'/upload', formData);
+  }
+
 }

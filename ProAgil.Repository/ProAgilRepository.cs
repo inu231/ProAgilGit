@@ -11,15 +11,14 @@ namespace ProAgil.Repository
         public ProAgilRepository(ProAgilContext _context)
         {
             this._context = _context;
+            // Marca para todas as queries. Para não deixar o ambiente rastreável,ou seja, não deixa o ambiente travado quando é feito uma query.
+            _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         // Métodos gerais: Estes métodos podem receber todas as nossas classes desta forma: ss
         public void Add<T>(T entity) where T : class
         {
             _context.Add(entity);
-
-            // Marca para todas as queries. Para não deixar o ambiente rastreável,ou seja, não deixa o ambiente travado quando é feito uma query.
-            _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         public void Update<T>(T entity) where T : class
